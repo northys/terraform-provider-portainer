@@ -678,9 +678,9 @@ func TestEnvironmentUpdate_NonEdgeSendsFullPayload(t *testing.T) {
 
 // TestEnvironmentUpdate_EdgeAgentSkipsConnectionFields verifies the
 // edge-agent guard in Update: when type is 4 or 7, the PUT body must NOT
-// carry name/url/tls fields (sending them triggers a proxy/tunnel
-// registration attempt that fails when the agent is not yet connected).
-// Only tag_ids / access-policies metadata fields are allowed through.
+// carry url/tls fields (sending them triggers a proxy/tunnel registration
+// attempt that fails when the agent is not yet connected). Metadata such as
+// name, group and tag_ids still goes through.
 func TestEnvironmentUpdate_EdgeAgentSkipsConnectionFields(t *testing.T) {
 	mock := NewMockServer(t)
 
@@ -721,8 +721,8 @@ func TestEnvironmentUpdate_EdgeAgentSkipsConnectionFields(t *testing.T) {
 	// The edge-agent branch must NOT include connection fields. The SDK
 	// uses `omitempty` on these JSON tags so an empty/zero value is
 	// elided from the body — that is exactly what we expect.
-	if _, present := payload["name"]; present {
-		t.Errorf("expected PUT body to OMIT 'name' for edge agent, but it was present: %v", payload["name"])
+	if payload["name"] != "edge-prod" {
+		t.Errorf("expected PUT body to carry name %q for edge agent, got %v", "edge-prod", payload["name"])
 	}
 	if _, present := payload["url"]; present {
 		t.Errorf("expected PUT body to OMIT 'url' for edge agent, but it was present: %v", payload["url"])
