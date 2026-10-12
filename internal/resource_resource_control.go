@@ -82,6 +82,12 @@ var errResourceControlNotLookupable = errors.New("resource control cannot be loo
 func lookupResourceControlID(client *APIClient, resourceType int, resourceID string) (string, map[string]interface{}, error) {
 	switch resourceType {
 	case 6: // stack
+		// A stack deployed outside Portainer has no stack object to read: its
+		// resource control is keyed "<endpointId>_<compose project>", not by a
+		// numeric stack ID, and GET /stacks/{id} cannot resolve it.
+		if _, err := strconv.Atoi(resourceID); err != nil {
+			return "", nil, fmt.Errorf("%w: external stack %q", errResourceControlNotLookupable, resourceID)
+		}
 		var result struct {
 			ResourceControl map[string]interface{} `json:"ResourceControl"`
 		}
