@@ -47,6 +47,19 @@ type EndpointSettingsPayload struct {
 	ChangeWindow            *ChangeWindow      `json:"changeWindow,omitempty"`
 	DeploymentOptions       *DeploymentOptions `json:"deploymentOptions,omitempty"`
 	SecuritySettings        *SecuritySettings  `json:"securitySettings,omitempty"`
+
+	// PUT /endpoints/{id}/settings reads the security switches as top-level
+	// fields; the nested securitySettings object above is ignored by
+	// Portainer CE.
+	AllowBindMountsForRegularUsers            *bool `json:"allowBindMountsForRegularUsers,omitempty"`
+	AllowContainerCapabilitiesForRegularUsers *bool `json:"allowContainerCapabilitiesForRegularUsers,omitempty"`
+	AllowDeviceMappingForRegularUsers         *bool `json:"allowDeviceMappingForRegularUsers,omitempty"`
+	AllowHostNamespaceForRegularUsers         *bool `json:"allowHostNamespaceForRegularUsers,omitempty"`
+	AllowPrivilegedModeForRegularUsers        *bool `json:"allowPrivilegedModeForRegularUsers,omitempty"`
+	AllowStackManagementForRegularUsers       *bool `json:"allowStackManagementForRegularUsers,omitempty"`
+	AllowSysctlSettingForRegularUsers         *bool `json:"allowSysctlSettingForRegularUsers,omitempty"`
+	AllowVolumeBrowserForRegularUsers         *bool `json:"allowVolumeBrowserForRegularUsers,omitempty"`
+	EnableHostManagementFeatures              *bool `json:"enableHostManagementFeatures,omitempty"`
 }
 
 func resourceEndpointSettings() *schema.Resource {
@@ -184,6 +197,17 @@ func resourceEndpointSettingsUpdate(ctx context.Context, d *schema.ResourceData,
 		SecuritySettings:        sec,
 		ChangeWindow:            cw,
 		DeploymentOptions:       deploy,
+	}
+	if sec != nil {
+		payload.AllowBindMountsForRegularUsers = new(sec.AllowBindMountsForRegularUsers)
+		payload.AllowContainerCapabilitiesForRegularUsers = new(sec.AllowContainerCapabilitiesForRegularUsers)
+		payload.AllowDeviceMappingForRegularUsers = new(sec.AllowDeviceMappingForRegularUsers)
+		payload.AllowHostNamespaceForRegularUsers = new(sec.AllowHostNamespaceForRegularUsers)
+		payload.AllowPrivilegedModeForRegularUsers = new(sec.AllowPrivilegedModeForRegularUsers)
+		payload.AllowStackManagementForRegularUsers = new(sec.AllowStackManagementForRegularUsers)
+		payload.AllowSysctlSettingForRegularUsers = new(sec.AllowSysctlSettingForRegularUsers)
+		payload.AllowVolumeBrowserForRegularUsers = new(sec.AllowVolumeBrowserForRegularUsers)
+		payload.EnableHostManagementFeatures = new(sec.EnableHostManagementFeatures)
 	}
 
 	url := fmt.Sprintf("%s/endpoints/%d/settings", client.Endpoint, endpointID)
